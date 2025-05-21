@@ -6,7 +6,7 @@ public class App {
         JFrame frame = new JFrame("Test");
 
         JPanel canvas = new JPanel();
-        canvas.setPreferredSize( new Dimension( 800, 600 ) );
+        canvas.setPreferredSize( new Dimension(920, 1080) );
 
         frame.add(canvas);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
