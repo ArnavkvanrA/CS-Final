@@ -6,9 +6,18 @@ import java.io.*;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 public class App {
+    private JFrame frame;
+    
     public static void main(String[] args) {
-        //Create the frame.
-        JFrame frame = new JFrame("SPLASH TRIVIA!");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new App().createAndShowGUI();
+            }
+        });
+    }
+    
+    public void createAndShowGUI() {
+        frame = new JFrame("SPLASH TRIVIA!");
 
         JPanel canvas = new JPanel() {
             BufferedImage backgroundImage;
@@ -21,7 +30,6 @@ public class App {
                 }
             }
 
-
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (backgroundImage != null) {
@@ -32,11 +40,27 @@ public class App {
 
         JLabel label = new JLabel("Starting...");
         label.setFont(new Font("Arial", Font.BOLD, 24));
-        canvas.add(label);
+        label.setForeground(Color.WHITE); 
+        
+        
+        JButton triviaButton = new JButton("Start Trivia Game");
+        triviaButton.setFont(new Font("Arial", Font.BOLD, 16));
+        triviaButton.addActionListener(e -> launchTriviaGame());
+        
+        
+        JPanel contentPanel = new JPanel();
+        contentPanel.setOpaque(false); 
+        contentPanel.add(label);
+        contentPanel.add(Box.createVerticalStrut(20));
+        contentPanel.add(triviaButton);
+        
+        canvas.setLayout(new BorderLayout());
+        canvas.add(contentPanel, BorderLayout.CENTER);
         
         frame.add(canvas);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+        frame.setSize(800, 600); 
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
         Timer timer = new Timer(1000, new ActionListener() {
@@ -48,7 +72,10 @@ public class App {
         });
 
         timer.start();
-        
-
+    }
+    
+    public void launchTriviaGame() {
+        TriviaDialog triviaDialog = new TriviaDialog(frame);
+        triviaDialog.setVisible(true);
     }
 }
