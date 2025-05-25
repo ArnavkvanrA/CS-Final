@@ -9,7 +9,7 @@ public class QnA{
     private JLabel questionLabel;
     private JRadioButton[] answerButtons;
     private JButton submitButton;
-    private ArrayList<Question> questions;
+    private ArrayList<String> questions;
     private int currentQuestionIndex;
     private int score;
     

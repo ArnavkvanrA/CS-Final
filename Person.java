@@ -3,6 +3,7 @@ import java.awt.*;
 public class Person{
     private double x_coord;
     private double y_coord;
+    private int ammo;
     
     public Person(double x, double y){
         x_coord = x;
@@ -26,6 +27,5 @@ public class Person{
         }
     }
 
-    public void 
 
 }

@@ -2,16 +2,36 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 public class App {
     public static void main(String[] args) {
         //Create the frame.
-        JFrame frame = new JFrame("Test");
+        JFrame frame = new JFrame("SPLASH TRIVIA!");
 
-        JPanel canvas = new JPanel();
-        canvas.setPreferredSize( new Dimension(920, 1080) );
+        JPanel canvas = new JPanel() {
+            BufferedImage backgroundImage;
+
+            {
+                try {
+                    backgroundImage = ImageIO.read(new File("final map.png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        };
 
         JLabel label = new JLabel("Starting...");
-        label.setFont(new Font("Arial", Font.BOLD, 32));
+        label.setFont(new Font("Arial", Font.BOLD, 24));
         canvas.add(label);
         
         frame.add(canvas);
@@ -26,6 +46,9 @@ public class App {
                 label.setText("Seconds passed: " + counter);
             }
         });
+
         timer.start();
+        
+
     }
 }

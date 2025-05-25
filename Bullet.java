@@ -14,10 +14,10 @@ public class Bullet {
     public void move(){
         this.x += speed;
     }
-    public Rectangle getBounds()
+    /*public Rectangle getBounds()
     {
         return new Rectangle(getX(), getY(), 10, 30);
-    }   
+    }*/  
     public void draw(Graphics g){
         g.setColor(Color.BLUE);
         g.fillOval(x,y,5,5);
