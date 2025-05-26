@@ -36,13 +36,32 @@ public class TriviaDialog extends JDialog implements ActionListener {
     public void initializeQuestions() {
         questions = new ArrayList<>();
         
-        questions.add(new Question("System.out.println(Hello +  World!)?", new String[]{"London", "Berlin", "Paris", "Madrid"}, 2));
-        
         questions.add(new Question("Which planet is known as the Red Planet?",new String[]{"Venus", "Mars", "Jupiter", "Saturn"},1));
         
         questions.add(new Question("What is 2 + 2?",new String[]{"3", "4", "5", "6"},1));
         
         questions.add(new Question( "Who painted the Mona Lisa?",new String[]{"Van Gogh", "Picasso", "Da Vinci", "Monet"},2));
+
+        questions.add(new Question("What is the largest planet in our Solar System?", new String[]{"Earth", "Saturn", "Jupiter", "Neptune"}, 2));
+
+        questions.add(new Question("In which year did the Titanic sink?", new String[]{"1905", "1912", "1920", "1898"}, 1));
+
+        questions.add(new Question("Which element has the chemical symbol 'Fe'?", new String[]{"Lead", "Iron", "Fluorine", "Zinc"}, 1));
+
+        questions.add(new Question("Who wrote the play 'Romeo and Juliet'?", new String[]{"Shakespeare", "Hemingway", "Dickens", "Twain"}, 0));
+
+        questions.add(new Question("What is the square root of 81?", new String[]{"7", "8", "9", "10"}, 2));
+
+        questions.add(new Question("Which country is known as the Land of the Rising Sun?", new String[]{"China", "Japan", "Thailand", "India"}, 1));
+
+        questions.add(new Question("How many sides does a hexagon have?", new String[]{"5", "6", "7", "8"}, 1));
+
+        questions.add(new Question("What is the hardest natural substance on Earth?", new String[]{"Gold", "Iron", "Diamond", "Quartz"}, 2));
+
+        questions.add(new Question("Which language has the most native speakers worldwide?", new String[]{"English", "Spanish", "Mandarin Chinese", "Hindi"}, 2));
+
+        questions.add(new Question("Which gas do plants absorb from the atmosphere?", new String[]{"Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"}, 1));
+
         Collections.shuffle(questions);
         totalQuestions = questions.size();
     }
@@ -92,7 +111,7 @@ public class TriviaDialog extends JDialog implements ActionListener {
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         submitButton = new JButton("Submit Answer");
         nextButton = new JButton("Next Question");
-        closeButton = new JButton("Close Game");
+        closeButton = new JButton("Back To Game");
         submitButton.addActionListener(this);
         nextButton.addActionListener(this);
         closeButton.addActionListener(this);
