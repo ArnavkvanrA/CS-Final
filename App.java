@@ -1,13 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+
 
 public class App {
     private JFrame frame;
@@ -25,7 +24,7 @@ public class App {
             BufferedImage personImage;
             List<Point> pathPoints = new ArrayList<>();
             List<Integer> zombieIndices = new ArrayList<>();
-            List<Point> people = new ArrayList<>();
+            Point playerPosition = new Point(300, 300);
             {
                 try {
                     backgroundImage = ImageIO.read(new File("final map.png"));
@@ -35,22 +34,53 @@ public class App {
                     e.printStackTrace();
                 }
 
-                // Define path
+                
                 pathPoints.add(new Point(125, 500));
+                pathPoints.add(new Point(125, 450));
+                pathPoints.add(new Point(125, 400));
                 pathPoints.add(new Point(125, 350));
+                pathPoints.add(new Point(125, 300));
+                pathPoints.add(new Point(125, 250));
                 pathPoints.add(new Point(125, 200));
+                pathPoints.add(new Point(180, 200));
                 pathPoints.add(new Point(237, 200));
+                pathPoints.add(new Point(293, 200));
                 pathPoints.add(new Point(350, 200));
+                pathPoints.add(new Point(406, 200));
                 pathPoints.add(new Point(462, 200));
+                pathPoints.add(new Point(518, 200));
                 pathPoints.add(new Point(575, 200));
+                pathPoints.add(new Point(575, 256));
                 pathPoints.add(new Point(575, 312));
+                pathPoints.add(new Point(575, 368));
                 pathPoints.add(new Point(575, 425));
+                pathPoints.add(new Point(606, 425));
                 pathPoints.add(new Point(637, 425));
+                pathPoints.add(new Point(668, 425));
                 pathPoints.add(new Point(700, 425));
+                pathPoints.add(new Point(700, 412));
                 pathPoints.add(new Point(700, 400));
-            }
+            
+            setFocusable(true);
+            requestFocusInWindow();
 
-            protected void paintComponent(Graphics g) {
+            addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    int key = e.getKeyCode();
+                    int moveAmount = 10;
+
+                    switch (key) {
+                        case KeyEvent.VK_W: playerPosition.y -= moveAmount; break;
+                        case KeyEvent.VK_A: playerPosition.x -= moveAmount; break;
+                        case KeyEvent.VK_S: playerPosition.y += moveAmount; break;
+                        case KeyEvent.VK_D: playerPosition.x += moveAmount; break;
+                    }
+                    repaint();
+                }
+            });
+        }
+        protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (backgroundImage != null) {
                     g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
@@ -63,10 +93,8 @@ public class App {
                         }
                     }
                 }
-                if (personImage != null) {
-                    for (Point p : people) {
-                        g.drawImage(personImage, p.x, p.y, 40, 40, this);
-                    }
+                if (personImage != null && playerPosition != null) {
+                    g.drawImage(personImage, playerPosition.x, playerPosition.y, 40, 40, this);
                 }
             }
         };
@@ -94,7 +122,7 @@ public class App {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        // Timer for label
+        
         Timer labelTimer = new Timer(1000, new ActionListener() {
             int counter = 0;
             public void actionPerformed(ActionEvent e) {
@@ -150,20 +178,6 @@ public class App {
             }
         });
         spawnZombies.start();
-
-        try {
-            JPanel panel = (JPanel) frame.getContentPane().getComponent(0);
-            var peopleField = panel.getClass().getDeclaredField("people");
-
-            peopleField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            List<Point> people = (List<Point>) peopleField.get(panel);
-
-            people.add(new Point(300, 300)); // Spawn a person here
-            panel.repaint();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
     public void launchTriviaGame() {
