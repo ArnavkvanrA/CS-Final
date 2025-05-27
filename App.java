@@ -30,7 +30,7 @@ public class App {
                 try {
                     backgroundImage = ImageIO.read(new File("final map.png"));
                     zombieImage = ImageIO.read(new File("Zombie.png"));
-                    personImage = ImageIO.read(new File("Default Char.png"));
+                    personImage = ImageIO.read(new File("Bigger Default Char.png"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
