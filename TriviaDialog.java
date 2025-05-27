@@ -27,7 +27,7 @@ public class TriviaDialog extends JDialog implements ActionListener {
     private JPanel resultPanel;
     
     public TriviaDialog(JFrame parent) {
-        super(parent, "Trivia Game", true); // Modal dialog
+        super(parent, "Trivia Game", true);
         initializeQuestions();
         setupGUI();
         startGame();
@@ -193,7 +193,6 @@ public class TriviaDialog extends JDialog implements ActionListener {
                                         "Result", JOptionPane.ERROR_MESSAGE);
         }
         
-        // Disable option buttons and submit button
         for (JRadioButton button : optionButtons) {
             button.setEnabled(false);
         }
