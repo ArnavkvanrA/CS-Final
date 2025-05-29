@@ -25,9 +25,11 @@ public class TriviaDialog extends JDialog implements ActionListener {
     private JPanel mainPanel;
     private JPanel gamePanel;
     private JPanel resultPanel;
+    private App appref;
     
-    public TriviaDialog(JFrame parent) {
+    public TriviaDialog(JFrame parent, App app) {
         super(parent, "Trivia Game", true);
+        appref = app;
         initializeQuestions();
         setupGUI();
         startGame();
@@ -187,6 +189,7 @@ public class TriviaDialog extends JDialog implements ActionListener {
             score++;
             updateScoreLabel();
             JOptionPane.showMessageDialog(this, "Correct!", "Result", JOptionPane.INFORMATION_MESSAGE);
+            appref.increaseAmmo();
         } else {
             String correctAnswer = currentQuestion.getOptions()[currentQuestion.getCorrectAnswer()];
             JOptionPane.showMessageDialog(this, "Wrong! The correct answer is: " + correctAnswer, 

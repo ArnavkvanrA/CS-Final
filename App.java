@@ -10,6 +10,8 @@ import java.awt.image.BufferedImage;
 
 public class App {
     private JFrame frame;
+    private int ammoCount = 10;
+    private JLabel ammoLabel;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new App().createAndShowGUI());
@@ -22,6 +24,7 @@ public class App {
             BufferedImage backgroundImage;
             BufferedImage zombieImage;
             BufferedImage personImage;
+            BufferedImage gunImage;
             List<Point> pathPoints = new ArrayList<>();
             List<Integer> zombieIndices = new ArrayList<>();
             Point playerPosition = new Point(300, 300);
@@ -30,6 +33,7 @@ public class App {
                     backgroundImage = ImageIO.read(new File("final map.png"));
                     zombieImage = ImageIO.read(new File("Zombie.png"));
                     personImage = ImageIO.read(new File("Bigger Default Char.png"));
+                    gunImage = ImageIO.read(new File("NotARocketLauncher.png"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -71,10 +75,20 @@ public class App {
                     int moveAmount = 10;
 
                     switch (key) {
-                        case KeyEvent.VK_W: playerPosition.y -= moveAmount; break;
-                        case KeyEvent.VK_A: playerPosition.x -= moveAmount; break;
-                        case KeyEvent.VK_S: playerPosition.y += moveAmount; break;
-                        case KeyEvent.VK_D: playerPosition.x += moveAmount; break;
+                        case KeyEvent.VK_W: playerPosition.y -= moveAmount; 
+                        break;
+                        case KeyEvent.VK_A: playerPosition.x -= moveAmount; 
+                        break;
+                        case KeyEvent.VK_S: playerPosition.y += moveAmount; 
+                        break;
+                        case KeyEvent.VK_D: playerPosition.x += moveAmount; 
+                        break;
+                        case KeyEvent.VK_SPACE:
+                            if (ammoCount > 0) {
+                            ammoCount--;
+                            ammoLabel.setText("Ammo: " + ammoCount);
+                            }
+                            break;
                     }
                     repaint();
                 }
@@ -95,13 +109,23 @@ public class App {
                 }
                 if (personImage != null && playerPosition != null) {
                     g.drawImage(personImage, playerPosition.x, playerPosition.y, 40, 40, this);
+                    if (gunImage != null) {
+                        int gunX = playerPosition.x + 20;
+                        int gunY = playerPosition.y + 10;
+                        g.drawImage(gunImage, gunX, gunY, 20, 10, this);
+                    }
                 }
+                
             }
         };
 
         JLabel label = new JLabel("Starting...");
         label.setFont(new Font("Arial", Font.BOLD, 24));
         label.setForeground(Color.WHITE);
+
+        ammoLabel = new JLabel("Ammo: " + ammoCount);
+        ammoLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        ammoLabel.setForeground(Color.YELLOW);
 
         JButton triviaButton = new JButton("Answer Questions");
         triviaButton.setFont(new Font("Arial", Font.BOLD, 16));
@@ -111,6 +135,7 @@ public class App {
         contentPanel.setOpaque(false);
         contentPanel.add(label);
         contentPanel.add(Box.createVerticalStrut(20));
+        contentPanel.add(ammoLabel);
         contentPanel.add(triviaButton);
 
         canvas.setLayout(new BorderLayout());
@@ -132,7 +157,7 @@ public class App {
         });
         labelTimer.start();
 
-        Timer moveZombies = new Timer(2000, e -> {
+        Timer moveZombies = new Timer(1000, e -> {
             try {
                 var panel = (JPanel) frame.getContentPane().getComponent(0);
                 var indicesField = panel.getClass().getDeclaredField("zombieIndices");
@@ -161,7 +186,7 @@ public class App {
         });
         moveZombies.start();
 
-        Timer spawnZombies = new Timer(2000, e -> {
+        Timer spawnZombies = new Timer(1500, e -> {
             try {
                 var panel = (JPanel) frame.getContentPane().getComponent(0);
                 var indicesField = panel.getClass().getDeclaredField("zombieIndices");
@@ -181,7 +206,12 @@ public class App {
     }
 
     public void launchTriviaGame() {
-        TriviaDialog triviaDialog = new TriviaDialog(frame);
+        TriviaDialog triviaDialog = new TriviaDialog(frame, this);
         triviaDialog.setVisible(true);
+    }
+
+    public void increaseAmmo() {
+        ammoCount++;
+        ammoLabel.setText("Ammo: " + ammoCount);
     }
 }
