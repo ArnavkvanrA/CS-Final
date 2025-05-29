@@ -1,6 +1,4 @@
-import java.awt.Color;
-import java.awt.Graphics;
-import javax.swing.ImageIcon;
+import java.awt.*;
 
 public class Bullet {
     private int x;
@@ -12,12 +10,8 @@ public class Bullet {
         this.y=y;
     }
     public void move(){
-        this.x += speed;
+        this.y -= speed;
     }
-    /*public Rectangle getBounds()
-    {
-        return new Rectangle(getX(), getY(), 10, 30);
-    }*/  
     public void draw(Graphics g){
         g.setColor(Color.BLUE);
         g.fillOval(x,y,5,5);

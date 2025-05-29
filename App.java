@@ -1,17 +1,26 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import javax.imageio.ImageIO;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-
+//ALL COMMENTS BELOW ARE BY ARNAV KUMAR
 public class App {
     private JFrame frame;
     private int ammoCount = 10;
     private JLabel ammoLabel;
+    private JPanel gamePanel;
+    private int zombiesAtEnd = 0;
+    private Timer moveZombies;
+    private Timer spawnZombies;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new App().createAndShowGUI());
@@ -19,7 +28,7 @@ public class App {
 
     public void createAndShowGUI() {
         frame = new JFrame("SPLASH TRIVIA!");
-
+        //i set up the canvas in this block, comments are below
         JPanel canvas = new JPanel() {
             BufferedImage backgroundImage;
             BufferedImage zombieImage;
@@ -28,6 +37,8 @@ public class App {
             List<Point> pathPoints = new ArrayList<>();
             List<Integer> zombieIndices = new ArrayList<>();
             Point playerPosition = new Point(300, 300);
+            List<Bullet> bullets = new ArrayList<>();
+            //this is how i represent all the sprites with their respective images
             {
                 try {
                     backgroundImage = ImageIO.read(new File("final map.png"));
@@ -38,7 +49,7 @@ public class App {
                     e.printStackTrace();
                 }
 
-                
+                //this is the path along which the zombies travel
                 pathPoints.add(new Point(125, 500));
                 pathPoints.add(new Point(125, 450));
                 pathPoints.add(new Point(125, 400));
@@ -63,38 +74,73 @@ public class App {
                 pathPoints.add(new Point(668, 425));
                 pathPoints.add(new Point(700, 425));
                 pathPoints.add(new Point(700, 412));
-                pathPoints.add(new Point(700, 400));
-            
-            setFocusable(true);
-            requestFocusInWindow();
+                pathPoints.add(new Point(700, 400)); //the end of the path, where we have to stop the zombies from reaching
 
-            addKeyListener(new KeyAdapter() {
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    int key = e.getKeyCode();
-                    int moveAmount = 10;
+                setFocusable(true);
+                requestFocusInWindow();
 
-                    switch (key) {
-                        case KeyEvent.VK_W: playerPosition.y -= moveAmount; 
-                        break;
-                        case KeyEvent.VK_A: playerPosition.x -= moveAmount; 
-                        break;
-                        case KeyEvent.VK_S: playerPosition.y += moveAmount; 
-                        break;
-                        case KeyEvent.VK_D: playerPosition.x += moveAmount; 
-                        break;
-                        case KeyEvent.VK_SPACE:
-                            if (ammoCount > 0) {
-                            ammoCount--;
-                            ammoLabel.setText("Ammo: " + ammoCount);
-                            }
-                            break;
+                //this is where i set up the controls (WASD movement, space to shoot)
+                addKeyListener(new KeyAdapter() {
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                        int key = e.getKeyCode();
+                        int moveAmount = 10;
+
+                        switch (key) {
+                            case KeyEvent.VK_W: playerPosition.y -= moveAmount;
+                                break;
+                            case KeyEvent.VK_A: playerPosition.x -= moveAmount;
+                                break;
+                            case KeyEvent.VK_S: playerPosition.y += moveAmount;
+                                break;
+                            case KeyEvent.VK_D: playerPosition.x += moveAmount;
+                                break;
+                            case KeyEvent.VK_SPACE:
+                                if (ammoCount > 0) {
+                                    ammoCount--;
+                                    ammoLabel.setText("Ammo: " + ammoCount);
+                                    bullets.add(new Bullet(playerPosition.x + 20, playerPosition.y));
+                                }
+                                break;
+                        }
+                        repaint();
                     }
-                    repaint();
-                }
-            });
-        }
-        protected void paintComponent(Graphics g) {
+                });
+
+                //this is what happens after a bullet is shot(with space button); the next bullet is loaded from its iterator
+                Timer bulletTimer = new Timer(20, e -> {
+                    Iterator<Bullet> bulletIt = bullets.iterator();
+                    while (bulletIt.hasNext()) {
+                        Bullet bullet = bulletIt.next();
+                        bullet.move();
+                        if (bullet.getY() < 0) {
+                            bulletIt.remove();
+                            continue;
+                        }
+                        //using the remove() method, i removed zombies from the map when they were hit by the bullets.
+                        //to check if they collided, i checked for an intersection of their rectanglular hitboxes.
+                        Iterator<Integer> zombieIt = zombieIndices.iterator();
+                        while (zombieIt.hasNext()) {
+                            int zIdx = zombieIt.next();
+                            if (zIdx < pathPoints.size()) {
+                                Point zp = pathPoints.get(zIdx);
+                                Rectangle zombieRect = new Rectangle(zp.x, zp.y, 40, 40);
+                                Rectangle bulletRect = new Rectangle(bullet.getX(), bullet.getY(), 5, 5);
+                                if (zombieRect.intersects(bulletRect)) {
+                                    bulletIt.remove();
+                                    zombieIt.remove();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    this.repaint();
+                });
+                bulletTimer.start();
+            }
+
+            //this is where i actually display the sprites defined in the try/catch block
+            protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (backgroundImage != null) {
                     g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
@@ -115,18 +161,23 @@ public class App {
                         g.drawImage(gunImage, gunX, gunY, 20, 10, this);
                     }
                 }
-                
+                for (Bullet bullet : bullets) {
+                    bullet.draw(g);
+                }
             }
         };
 
+        //this is the label i used to keep track of time
         JLabel label = new JLabel("Starting...");
         label.setFont(new Font("Arial", Font.BOLD, 24));
         label.setForeground(Color.WHITE);
 
+        //this label keeps track of ammo. i update this label every time the "shoot"(-1 ammo) or "correct"(+1 ammo) events occur.
         ammoLabel = new JLabel("Ammo: " + ammoCount);
         ammoLabel.setFont(new Font("Arial", Font.BOLD, 18));
         ammoLabel.setForeground(Color.YELLOW);
 
+        //this is the button which opens the triviadialog window
         JButton triviaButton = new JButton("Answer Questions");
         triviaButton.setFont(new Font("Arial", Font.BOLD, 16));
         triviaButton.addActionListener(e -> launchTriviaGame());
@@ -147,17 +198,18 @@ public class App {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        
-        Timer labelTimer = new Timer(1000, new ActionListener() {
+        //keeps track of how much time(seconds) has elapsed
+        Timer secondCounter = new Timer(1000, new ActionListener() {
             int counter = 0;
             public void actionPerformed(ActionEvent e) {
                 counter++;
                 label.setText("Seconds passed: " + counter);
             }
         });
-        labelTimer.start();
+        secondCounter.start();
 
-        Timer moveZombies = new Timer(1000, e -> {
+        //zombies move every 1000 milliseconds(1 second) to the next node of the path, designated in lines 53 to 77
+        moveZombies = new Timer(1000, e -> {
             try {
                 var panel = (JPanel) frame.getContentPane().getComponent(0);
                 var indicesField = panel.getClass().getDeclaredField("zombieIndices");
@@ -177,7 +229,17 @@ public class App {
                     }
                 }
 
+
+                int before = indices.size();
                 indices.removeIf(i -> i >= path.size() - 1);
+                int after = indices.size();
+                int zombiesRemoved = before - after;
+                if (zombiesRemoved > 0) {
+                    zombiesAtEnd += zombiesRemoved;
+                    if (zombiesAtEnd >= 5) {
+                        endGame();
+                    }
+                }
 
                 panel.repaint();
             } catch (Exception ex) {
@@ -186,7 +248,9 @@ public class App {
         });
         moveZombies.start();
 
-        Timer spawnZombies = new Timer(1500, e -> {
+        /*i choose to spawn zombies at the start of the path every 1.5 seconds. I leave a 0.5 second delay so that 
+        it's easier to see the zombies moving along the path*/
+        spawnZombies = new Timer(1500, e -> {
             try {
                 var panel = (JPanel) frame.getContentPane().getComponent(0);
                 var indicesField = panel.getClass().getDeclaredField("zombieIndices");
@@ -196,22 +260,33 @@ public class App {
                 @SuppressWarnings("unchecked")
                 List<Integer> indices = (List<Integer>) indicesField.get(panel);
 
-                indices.add(0); 
+                indices.add(0);
                 panel.repaint();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
         spawnZombies.start();
+
+        gamePanel = canvas;
     }
 
+    //this function is called when "Answer Questions" is pressed. This opens the TriviaDialog
     public void launchTriviaGame() {
         TriviaDialog triviaDialog = new TriviaDialog(frame, this);
         triviaDialog.setVisible(true);
+        gamePanel.requestFocusInWindow();
     }
 
     public void increaseAmmo() {
         ammoCount++;
         ammoLabel.setText("Ammo: " + ammoCount);
+    }
+    //called when 5 zombies reach the end
+    private void endGame() {
+        moveZombies.stop();
+        spawnZombies.stop();
+        JOptionPane.showMessageDialog(frame, "Game Over! 5 zombies reached the end.", "Game Over", JOptionPane.ERROR_MESSAGE);
+        frame.dispose();
     }
 }
