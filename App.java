@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 //ALL COMMENTS BELOW ARE BY ARNAV KUMAR
-public class App {
+public class App extends JPanel{
     private JFrame frame;
     private int ammoCount = 10;
     private JLabel ammoLabel;
@@ -21,6 +21,7 @@ public class App {
     private int zombiesAtEnd = 0;
     private Timer moveZombies;
     private Timer spawnZombies;
+    private int lives = 5;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new App().createAndShowGUI());
@@ -38,13 +39,17 @@ public class App {
             List<Integer> zombieIndices = new ArrayList<>();
             Point playerPosition = new Point(300, 300);
             List<Bullet> bullets = new ArrayList<>();
+            
+            BufferedImage heartIcon;
             //this is how i represent all the sprites with their respective images
             {
+                
                 try {
                     backgroundImage = ImageIO.read(new File("final map.png"));
                     zombieImage = ImageIO.read(new File("Zombie.png"));
                     personImage = ImageIO.read(new File("Bigger Default Char.png"));
                     gunImage = ImageIO.read(new File("NotARocketLauncher.png"));
+                    heartIcon = ImageIO.read(new File("HEART.png")); 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -164,6 +169,9 @@ public class App {
                 for (Bullet bullet : bullets) {
                     bullet.draw(g);
                 }
+                for(int i = 0; i < lives;i++){
+                    g.drawImage(heartIcon, 10 + i * 25, 30, 32, 32, this);
+                }
             }
         };
 
@@ -172,7 +180,7 @@ public class App {
         label.setFont(new Font("Arial", Font.BOLD, 24));
         label.setForeground(Color.WHITE);
 
-        //this label keeps track of ammo. i update this label every time the "shoot"(-1 ammo) or "correct"(+1 ammo) events occur.
+        //this label keeps track of ammo. i update this label every time the "shoot"(-1 ammo) or "correct"(+5 ammo) events occur.
         ammoLabel = new JLabel("Ammo: " + ammoCount);
         ammoLabel.setFont(new Font("Arial", Font.BOLD, 18));
         ammoLabel.setForeground(Color.YELLOW);
@@ -236,6 +244,9 @@ public class App {
                 int zombiesRemoved = before - after;
                 if (zombiesRemoved > 0) {
                     zombiesAtEnd += zombiesRemoved;
+                    lives--;
+                    repaint();
+                    
                     if (zombiesAtEnd >= 5) {
                         endGame();
                     }
@@ -279,7 +290,7 @@ public class App {
     }
 
     public void increaseAmmo() {
-        ammoCount++;
+        ammoCount+=5;
         ammoLabel.setText("Ammo: " + ammoCount);
     }
     //called when 5 zombies reach the end
@@ -289,4 +300,6 @@ public class App {
         JOptionPane.showMessageDialog(frame, "Game Over! 5 zombies reached the end.", "Game Over", JOptionPane.ERROR_MESSAGE);
         frame.dispose();
     }
+    
+   
 }
